@@ -17,7 +17,13 @@ library(tidycensus)
 Sys.setenv(CENSUS_KEY="c8aa67e4086b4b5ce3a8717f59faa9a28f611dab")
 ```
 
-
+```{r}
+acs_vars_2018_5yr <-
+listCensusMetadata(
+name = "2018/acs/acs5",
+type = "variables"
+)
+```
 
 ```{r}
 bay_tracts_disability <-
@@ -115,7 +121,7 @@ values_from = estimate
 )  %>%
 rename(at_or_above_poverty = "Income in the past 12 months at or above poverty level", below_poverty = "Income in the past 12 months below poverty level") %>%
 mutate(
-perc_in_poverty = below_poverty / (at_or_above_poverty + below_poverty)
+perc_in_poverty = below_poverty / (at_or_above_poverty + below_poverty))
 ```
 
 ```{r}
@@ -126,6 +132,84 @@ inner_join(bay_tracts_citizenships)
 ```
 
 ```{r}
+reg <- lm(perc_in_poverty ~ perc_disability + perc_non_citizen, merged_df)
+```
 
+
+```{r}
+pums_vars_2018 <- 
+  pums_variables %>%
+  filter(year == 2018, survey == "acs5")
+```
+
+```{r}
+ca_pums <- get_pums(
+  variables = c(
+    "PUMA",
+    "DIS",
+    "CIT",
+    "POVPIP"
+  ),
+  state = "CA",
+  year = 2018,
+  survey = "acs5",
+  recode = T
+)
+
+ca_pumas <-
+  pumas("CA", cb = T, progress_bar = F)
+
+bay_county_names <-
+  c(
+    "Alameda",
+    "Contra Costa",
+    "Marin",
+    "Napa",
+    "San Francisco",
+    "San Mateo",
+    "Santa Clara",
+    "Solano",
+    "Sonoma"
+  )
+
+bay_counties <-
+  counties("CA", cb = T, progress_bar = F) %>%
+  filter(NAME %in% bay_county_names)
+
+bay_pumas <-
+  ca_pumas %>% 
+  st_centroid() %>% 
+  .[bay_counties, ] %>% 
+  st_set_geometry(NULL) %>% 
+  left_join(ca_pumas %>% select(GEOID10)) %>% 
+  st_as_sf()
+
+bay_pums <-
+  ca_pums %>% 
+  filter(PUMA %in% bay_pumas$PUMACE10)
+```
+
+```{r}
+bay_pums_regression <-
+bay_pums %>%
+mutate(
+non_citizen =
+ifelse(
+CIT == 5,
+1,
+0
+),
+with_disability =
+ifelse(
+DIS == 1,
+1,
+0
+)
+)
+```
+
+```{r}
+reg_pums <- lm(POVPIP ~ with_disability + non_citizen, bay_pums_regression,
+weights = PWGTP)
 ```
 
