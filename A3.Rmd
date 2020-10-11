@@ -1,8 +1,10 @@
 ---
 title: "Assignment 3"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
-output: html_notebook
-editor_options: 
+output:
+  html_document:
+    df_print: paged
+editor_options:
   chunk_output_type: console
 ---
 
@@ -134,9 +136,9 @@ reg <- lm(perc_in_poverty ~ perc_disability + perc_non_citizen, merged_df)
 
 summary(reg)
 ```
-This analysis points to a statistically significant results, suggesting that both having a disability and lack of citizenship status are correlated with higher tract-level poverty rates. These results align with research that suggests a disproportionate relationship between disability, citizenship, and poverty. For example, the Center for Poverty & Inequality Research analyzed Census Bureau research showing that in 2014, the national poverty rate was 15%. But, the rate was 12% for those without a disability rate and 29% for those with a disability. Moreover, the research found that individuals with disabilities represent 8% of the population, yet they make up 17% of those in poverty. While these conclusions con not be directed translated to the current Bay Area because of geography difference and time period of analysis, the equity analysis suggest a relationship exists between disability, citizenship, and poverty at the national level, and my results indicate this may be an issue in the Bay Area as well.
+This analysis suggests that there is a statistically significant relationship between having a disability, lack of citizenship status, and higher tract-level poverty rates, and these results align with research I found on the relationship between disability, citizenship, and poverty. For example, the Center for Poverty & Inequality Research analyzed Census Bureau research showing that in 2014, the national poverty rate was 15%, but the rate was 12% for those without a disability and 29% for those with a disability. Moreover, the research found that while individuals with disabilities represent 8% of the population, they make up 17% of those in poverty. While these conclusions con not be directed translated to current Bay Area circumstances because of differences in geography and time period, the equity analysis points to an issue at the national level, and my results indicate this may be present in the Bay Area as well.
 
-Similarly, the analysis points to a statistically significant correlation between lack of citizenship and higher poverty levels. USA Today analyzed the Census Bureau's Current Population Survey data in 2019 and found that of all U.S. citizens (~300.3 million people), the poverty rate is 11.3%. For non-citizens, the group poverty rate is 17.5%, despite only representing ~23.5 million people. As discussed above, this data represents national circumstances, but should still be used in consideration of how citizenship status affects poverty rates in specific regions like the Bay Area. 
+Similarly, the analysis points to a statistically significant correlation between lack of citizenship and higher poverty rates. USA Today analyzed the Census Bureau's Current Population Survey data in 2019 and found that of all U.S. citizens (~300.3 million people), the poverty rate is 11.3%. For non-citizens, the group poverty rate is 17.5%, despite only representing ~23.5 million people. As discussed above, this data represents national circumstances, but should still be used in consideration of how citizenship status affects poverty rates in specific regions like the Bay Area. 
 
 While my analysis suggests a statistically significant relationship between disability status, citizenship status, and poverty rate, it cannot be used to make a causal claim. Poverty is a complex issue that cannot be summarized solely be two independent variables. There may be a correlation between the variables, but in no way can this analysis claim causality. Moreover, consideration should be given to the fact that the Census Bureau's poverty threshold does not vary geographically. This is a limitation of this analysis, because the data does not capture regional differences in the cost of living, including the high cost of living in the Bay Area.
 
@@ -218,6 +220,6 @@ weights = PWGTP)
 
 summary(reg_pums)
 ```
-This population-level analysis also indicates a statistically significant relationship between having disability, lack of citizenship, and higher poverty levels. The outcome measured in this analysis isn't poverty rate, but rather income-to-poverty ratio, which should be interpreted the following way: if the ratio equals 1, the individual's income is the same as the poverty level. If ratio is greater than 1, the individual's income is greater than the poverty level, and vice versa. This means that the lower (more negative) the income-to-poverty ratio, the more that individual is in poverty. While these results suggest a statistically significant correlation, the same assumptions and limitations discussed above apply in this analysis, and no causal claim can be made based on the findings. 
+This population-level analysis also indicates a statistically significant relationship between having a  disability, lack of citizenship, and higher poverty levels. The outcome measured in this analysis isn't poverty rate, but rather income-to-poverty ratio, which should be interpreted the following way: if the ratio equals 1, the individual's income is the same as the poverty level. If the ratio is greater than 1, the individual's income is greater than the poverty level, and vice versa. This means that the lower (more negative) the income-to-poverty ratio, the more that individual is in poverty. While these results suggest a statistically significant correlation, the same assumptions and limitations discussed above apply in this analysis, and therefore no causal claim can be made based on the findings. 
 
 
