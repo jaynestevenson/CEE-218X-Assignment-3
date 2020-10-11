@@ -2,6 +2,8 @@
 title: "Assignment 3"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output: html_notebook
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -54,8 +56,6 @@ sep = "!!"
 filter(!is.na(disability)) %>%
 select(!c(sex, age)) %>%
 group_by(tract, disability) %>%
-transmute(
-tract = paste0(state, county, tract)) %>%
 summarize(estimate = sum(estimate)) %>%
 pivot_wider(
 names_from = disability,
@@ -112,8 +112,6 @@ sep = "!!"
 filter(!is.na(poverty_status)) %>%
 select(!c(sex, age)) %>%
 group_by(tract, poverty_status) %>%
-transmute(
-tract = paste0(state, county, tract)) %>%
 summarize(estimate = sum(estimate)) %>%
 pivot_wider(
 names_from = poverty_status,
@@ -133,6 +131,8 @@ inner_join(bay_tracts_citizenships)
 
 ```{r}
 reg <- lm(perc_in_poverty ~ perc_disability + perc_non_citizen, merged_df)
+
+summary(reg)
 ```
 
 
@@ -211,5 +211,7 @@ DIS == 1,
 ```{r}
 reg_pums <- lm(POVPIP ~ with_disability + non_citizen, bay_pums_regression,
 weights = PWGTP)
+
+summary(reg_pums)
 ```
 
