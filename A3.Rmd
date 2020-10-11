@@ -10,7 +10,7 @@ editor_options:
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
 ```
 
 ```{r}
@@ -150,7 +150,7 @@ pums_vars_2018 <-
   filter(year == 2018, survey == "acs5")
 ```
 
-```{r}
+```{r, eval = F}
 ca_pums <- get_pums(
   variables = c(
     "PUMA",
@@ -163,7 +163,16 @@ ca_pums <- get_pums(
   survey = "acs5",
   recode = T
 )
+saveRDS(ca_pums, "ca_pums.rds")
+```
 
+```{r, echo = F}
+ca_pums <-
+readRDS("ca_pums.rds")
+```
+
+
+```{r}
 ca_pumas <-
   pumas("CA", cb = T, progress_bar = F)
 
