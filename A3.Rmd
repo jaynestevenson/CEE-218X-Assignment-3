@@ -1,0 +1,131 @@
+---
+title: "Assignment 3"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output: html_notebook
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(censusapi)
+library(tidycensus)
+
+Sys.setenv(CENSUS_KEY="c8aa67e4086b4b5ce3a8717f59faa9a28f611dab")
+```
+
+
+
+```{r}
+bay_tracts_disability <-
+getCensus(
+name = "acs/acs5",
+vintage = 2018,
+region = "tract:*",
+regionin = "state:06+county:001,013,041,055,075,081,085,095,097",
+vars = c("group(B18101)")
+)%>%
+select(!c(GEO_ID,state,NAME) & !ends_with(c("EA","MA","M"))) %>%
+pivot_longer(
+ends_with("E"),
+names_to = "variable",
+values_to = "estimate"
+) %>%
+left_join(
+acs_vars_2018_5yr %>%
+select(name, label),
+by = c("variable" = "name")
+) %>%
+select(-variable) %>%
+separate(
+label,
+into = c(NA,NA,"sex", "age", "disability"),
+sep = "!!"
+) %>%
+filter(!is.na(disability)) %>%
+select(!c(sex, age)) %>%
+group_by(tract, disability) %>%
+transmute(
+tract = paste0(state, county, tract)) %>%
+summarize(estimate = sum(estimate)) %>%
+pivot_wider(
+names_from = disability,
+values_from = estimate
+) %>%
+rename(no_disability = "No disability", with_disability = "With a disability") %>%
+mutate(
+perc_disability = with_disability / (no_disability + with_disability)
+)
+```
+
+```{r}
+bay_tracts_citizenships <-
+getCensus(
+name = "acs/acs5",
+vintage = 2018,
+region = "tract:*",
+regionin = "state:06+county:001,013,041,055,075,081,085,095,097",
+vars = c("B05001_001E", "B05001_006E")
+) %>%
+mutate(
+perc_non_citizen = B05001_006E / B05001_001E
+) %>%
+filter(!is.na(perc_non_citizen))
+```
+
+
+```{r}
+bay_tracts_poverty <-
+getCensus(
+name = "acs/acs5",
+vintage = 2018,
+region = "tract:*",
+regionin = "state:06+county:001,013,041,055,075,081,085,095,097",
+vars = c("group(B17001)")
+) %>%
+select(!c(GEO_ID,state,NAME) & !ends_with(c("EA","MA","M"))) %>%
+pivot_longer(
+ends_with("E"),
+names_to = "variable",
+values_to = "estimate"
+) %>%
+left_join(
+acs_vars_2018_5yr %>%
+select(name, label),
+by = c("variable" = "name")
+) %>%
+select(-variable) %>%
+separate(
+label,
+into = c(NA,NA,"poverty_status", "sex", "age"),
+sep = "!!"
+) %>%
+filter(!is.na(poverty_status)) %>%
+select(!c(sex, age)) %>%
+group_by(tract, poverty_status) %>%
+transmute(
+tract = paste0(state, county, tract)) %>%
+summarize(estimate = sum(estimate)) %>%
+pivot_wider(
+names_from = poverty_status,
+values_from = estimate
+)  %>%
+rename(at_or_above_poverty = "Income in the past 12 months at or above poverty level", below_poverty = "Income in the past 12 months below poverty level") %>%
+mutate(
+perc_in_poverty = below_poverty / (at_or_above_poverty + below_poverty)
+```
+
+```{r}
+merged_df <-
+bay_tracts_disability %>%
+inner_join(bay_tracts_poverty) %>%
+inner_join(bay_tracts_citizenships)
+```
+
+```{r}
+
+```
+
