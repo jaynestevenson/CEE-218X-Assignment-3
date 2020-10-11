@@ -29,104 +29,104 @@ type = "variables"
 
 ```{r}
 bay_tracts_disability <-
-getCensus(
-name = "acs/acs5",
-vintage = 2018,
-region = "tract:*",
-regionin = "state:06+county:001,013,041,055,075,081,085,095,097",
-vars = c("group(B18101)")
-)%>%
-select(!c(GEO_ID,state,NAME) & !ends_with(c("EA","MA","M"))) %>%
-pivot_longer(
-ends_with("E"),
-names_to = "variable",
-values_to = "estimate"
-) %>%
-left_join(
-acs_vars_2018_5yr %>%
-select(name, label),
-by = c("variable" = "name")
-) %>%
-select(-variable) %>%
-separate(
-label,
-into = c(NA,NA,"sex", "age", "disability"),
-sep = "!!"
-) %>%
-filter(!is.na(disability)) %>%
-select(!c(sex, age)) %>%
-group_by(tract, disability) %>%
-summarize(estimate = sum(estimate)) %>%
-pivot_wider(
-names_from = disability,
-values_from = estimate
-) %>%
-rename(no_disability = "No disability", with_disability = "With a disability") %>%
-mutate(
-perc_disability = with_disability / (no_disability + with_disability)
-)
+  getCensus(
+    name = "acs/acs5",
+    vintage = 2018,
+    region = "tract:*",
+    regionin = "state:06+county:001,013,041,055,075,081,085,095,097",
+    vars = c("group(B18101)")
+    ) %>%
+  select(!c(GEO_ID,state,NAME) & !ends_with(c("EA","MA","M"))) %>%
+  pivot_longer(
+    ends_with("E"),
+    names_to = "variable",
+    values_to = "estimate"
+    ) %>%
+  left_join(
+    acs_vars_2018_5yr %>%
+    select(name, label),
+    by = c("variable" = "name")
+    ) %>%
+  select(-variable) %>%
+  separate(
+    label,
+    into = c(NA,NA,"sex", "age", "disability"),
+    sep = "!!"
+    ) %>%
+  filter(!is.na(disability)) %>%
+  select(!c(sex, age)) %>%
+  group_by(tract, disability) %>%
+  summarize(estimate = sum(estimate)) %>%
+  pivot_wider(
+    names_from = disability,
+    values_from = estimate
+    ) %>%
+  rename(no_disability = "No disability", with_disability = "With a disability") %>%
+  mutate(
+    perc_disability = with_disability / (no_disability + with_disability)
+    )
 ```
 
 ```{r}
 bay_tracts_citizenships <-
-getCensus(
-name = "acs/acs5",
-vintage = 2018,
-region = "tract:*",
-regionin = "state:06+county:001,013,041,055,075,081,085,095,097",
-vars = c("B05001_001E", "B05001_006E")
-) %>%
-mutate(
-perc_non_citizen = B05001_006E / B05001_001E
-) %>%
-filter(!is.na(perc_non_citizen))
+  getCensus(
+    name = "acs/acs5",
+    vintage = 2018,
+    region = "tract:*",
+    regionin = "state:06+county:001,013,041,055,075,081,085,095,097",
+    vars = c("B05001_001E", "B05001_006E")
+    ) %>%
+  mutate(
+  perc_non_citizen = B05001_006E / B05001_001E
+  ) %>%
+  filter(!is.na(perc_non_citizen))
 ```
 
 
 ```{r}
 bay_tracts_poverty <-
-getCensus(
-name = "acs/acs5",
-vintage = 2018,
-region = "tract:*",
-regionin = "state:06+county:001,013,041,055,075,081,085,095,097",
-vars = c("group(B17001)")
-) %>%
-select(!c(GEO_ID,state,NAME) & !ends_with(c("EA","MA","M"))) %>%
-pivot_longer(
-ends_with("E"),
-names_to = "variable",
-values_to = "estimate"
-) %>%
-left_join(
-acs_vars_2018_5yr %>%
-select(name, label),
-by = c("variable" = "name")
-) %>%
-select(-variable) %>%
-separate(
-label,
-into = c(NA,NA,"poverty_status", "sex", "age"),
-sep = "!!"
-) %>%
-filter(!is.na(poverty_status)) %>%
-select(!c(sex, age)) %>%
-group_by(tract, poverty_status) %>%
-summarize(estimate = sum(estimate)) %>%
-pivot_wider(
-names_from = poverty_status,
-values_from = estimate
-)  %>%
-rename(at_or_above_poverty = "Income in the past 12 months at or above poverty level", below_poverty = "Income in the past 12 months below poverty level") %>%
-mutate(
-perc_in_poverty = below_poverty / (at_or_above_poverty + below_poverty))
+  getCensus(
+    name = "acs/acs5",
+    vintage = 2018,
+    region = "tract:*",
+    regionin = "state:06+county:001,013,041,055,075,081,085,095,097",
+    vars = c("group(B17001)")
+    ) %>%
+  select(!c(GEO_ID,state,NAME) & !ends_with(c("EA","MA","M"))) %>%
+  pivot_longer(
+    ends_with("E"),
+    names_to = "variable",
+    values_to = "estimate"
+    ) %>%
+  left_join(
+    acs_vars_2018_5yr %>%
+    select(name, label),
+    by = c("variable" = "name")
+    ) %>%
+  select(-variable) %>%
+  separate(
+    label,
+    into = c(NA,NA,"poverty_status", "sex", "age"),
+    sep = "!!"
+    ) %>%
+  filter(!is.na(poverty_status)) %>%
+  select(!c(sex, age)) %>%
+  group_by(tract, poverty_status) %>%
+  summarize(estimate = sum(estimate)) %>%
+  pivot_wider(
+    names_from = poverty_status,
+    values_from = estimate
+    )  %>%
+  rename(at_or_above_poverty = "Income in the past 12 months at or above poverty level", below_poverty = "Income in the past 12 months below poverty level") %>%
+  mutate(
+   perc_in_poverty = below_poverty / (at_or_above_poverty + below_poverty))
 ```
 
 ```{r}
 merged_df <-
-bay_tracts_disability %>%
-inner_join(bay_tracts_poverty) %>%
-inner_join(bay_tracts_citizenships)
+  bay_tracts_disability %>%
+    inner_join(bay_tracts_poverty) %>%
+     inner_join(bay_tracts_citizenships)
 ```
 
 ```{r}
@@ -134,7 +134,11 @@ reg <- lm(perc_in_poverty ~ perc_disability + perc_non_citizen, merged_df)
 
 summary(reg)
 ```
+This analysis points to a statistically significant results, suggesting that both having a disability and lack of citizenship status are correlated with higher tract-level poverty rates. These results align with research that suggests a disproportionate relationship between disability, citizenship, and poverty. For example, the Center for Poverty & Inequality Research analyzed Census Bureau research showing that in 2014, the national poverty rate was 15%. But, the rate was 12% for those without a disability rate and 29% for those with a disability. Moreover, the research found that individuals with disabilities represent 8% of the population, yet they make up 17% of those in poverty. While these conclusions con not be directed translated to the current Bay Area because of geography difference and time period of analysis, the equity analysis suggest a relationship exists between disability, citizenship, and poverty at the national level, and my results indicate this may be an issue in the Bay Area as well.
 
+Similarly, the analysis points to a statistically significant correlation between lack of citizenship and higher poverty levels. USA Today analyzed the Census Bureau's Current Population Survey data in 2019 and found that of all U.S. citizens (~300.3 million people), the poverty rate is 11.3%. For non-citizens, the group poverty rate is 17.5%, despite only representing ~23.5 million people. As discussed above, this data represents national circumstances, but should still be used in consideration of how citizenship status affects poverty rates in specific regions like the Bay Area. 
+
+While my analysis suggests a statistically significant relationship between disability status, citizenship status, and poverty rate, it cannot be used to make a causal claim. Poverty is a complex issue that cannot be summarized solely be two independent variables. There may be a correlation between the variables, but in no way can this analysis claim causality. Moreover, consideration should be given to the fact that the Census Bureau's poverty threshold does not vary geographically. This is a limitation of this analysis, because the data does not capture regional differences in the cost of living, including the high cost of living in the Bay Area.
 
 ```{r}
 pums_vars_2018 <- 
@@ -191,21 +195,21 @@ bay_pums <-
 
 ```{r}
 bay_pums_regression <-
-bay_pums %>%
-mutate(
-non_citizen =
-ifelse(
-CIT == 5,
-1,
-0
-),
-with_disability =
-ifelse(
-DIS == 1,
-1,
-0
-)
-)
+  bay_pums %>%
+    mutate(
+      non_citizen =
+      ifelse(
+      CIT == 5,
+      1,
+      0
+      ),
+      with_disability =
+      ifelse(
+      DIS == 1,
+      1,
+      0
+      )
+    )
 ```
 
 ```{r}
@@ -214,4 +218,6 @@ weights = PWGTP)
 
 summary(reg_pums)
 ```
+This population-level analysis also indicates a statistically significant relationship between having disability, lack of citizenship, and higher poverty levels. The outcome measured in this analysis isn't poverty rate, but rather income-to-poverty ratio, which should be interpreted the following way: if the ratio equals 1, the individual's income is the same as the poverty level. If ratio is greater than 1, the individual's income is greater than the poverty level, and vice versa. This means that the lower (more negative) the income-to-poverty ratio, the more that individual is in poverty. While these results suggest a statistically significant correlation, the same assumptions and limitations discussed above apply in this analysis, and no causal claim can be made based on the findings. 
+
 
